@@ -1,0 +1,14 @@
+*.json
+*.project
+*.txt
+*.csv
+*.zip
+*.class
+.*/
+*.tar
+*.jar
+*.bat
+*.bin
+*.MF
+build/
+.classpath

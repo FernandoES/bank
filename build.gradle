@@ -1,0 +1,48 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'bank.Main'
+
+// tag::repositories[]
+repositories {
+    mavenCentral()
+}
+// end::repositories[]
+
+// tag::jar[]
+jar {
+    baseName = 'gs-gradle'
+    version =  '0.1.0'
+    manifest {
+        attributes 'Main-Class': 'bank.Main'
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+// end::jar[]
+
+task customFatJar(type: Jar) {
+
+    manifest {
+
+        attributes 'Main-Class': 'bank.Main'
+    }
+
+    baseName = 'createAccount'
+
+    from { 
+
+        configurations.compile.collect { 
+            it.isDirectory() ? it : zipTree(it) 
+        } 
+    }
+    with jar
+}
+
+// tag::dependencies[]
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {}
