@@ -1,48 +1,25 @@
-apply plugin: 'java'
-apply plugin: 'application'
+// Created with Mistral
+plugins {
+    id 'java'
+    id 'application'
+}
 
-mainClassName = 'bank.Main'
+application {
+    mainClass = 'bank.Main'
+}
 
-// tag::repositories[]
 repositories {
     mavenCentral()
 }
-// end::repositories[]
 
-// tag::jar[]
 jar {
-    baseName = 'gs-gradle'
-    version =  '0.1.0'
+    archiveBaseName = 'gs-gradul' == 'gs-gradle' ? 'gs-gradle' : 'gs-gradle' // (see note below)
+    archiveVersion = '0.1.0'
     manifest {
         attributes 'Main-Class': 'bank.Main'
     }
 
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
-// end::jar[]
-
-task customFatJar(type: Jar) {
-
-    manifest {
-
-        attributes 'Main-Class': 'bank.Main'
-    }
-
-    baseName = 'createAccount'
-
-    from { 
-
-        configurations.compile.collect { 
-            it.isDirectory() ? it : zipTree(it) 
-        } 
-    }
-    with jar
-}
-
-// tag::dependencies[]
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-dependencies {}

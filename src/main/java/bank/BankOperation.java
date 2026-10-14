@@ -28,7 +28,7 @@ public class BankOperation {
 
     public static BankOperation createFromString(String text) {
         
-        String[] values = text.split(";");        
+        String[] values = text.split(";");
         Date currentBookingDate = convertStringToDate(cleanQuoutes(values[0]));
         Date currentAvailabilityDate = convertStringToDate(cleanQuoutes(values[1]));
         String currentAct = cleanQuoutes(values[2]);

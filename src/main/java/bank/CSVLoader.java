@@ -9,11 +9,12 @@ import java.nio.file.attribute.FileTime;
 public class CSVLoader {
 
     public final String FILENAME_START = "umsaetze_";
-    public final String FILENAME_END = ".csv";    
+    public final String FILENAME_END = ".csv";
     public static String fileName;
     
     public BankAccount LoadOperations() {
         List<String> text = loadFile();
+        TextIdentificators.setTextIdentificators(text);
         return getOperations(text, getCurrentSaldo(text));
     }
 
@@ -47,25 +48,28 @@ public class CSVLoader {
     }
 
     private double getCurrentSaldo(List<String> text) {
-        return Double.valueOf(text.stream().filter(line -> line.startsWith("\"Neuer Kontostand\""))
+        return Double.valueOf(text.stream().filter(line -> line.startsWith(TextIdentificators.getInstance().saldo))
             .findFirst().get().replaceAll("[^-,?0-9]+", "").replace(",","."));
     }
 
     private BankAccount getOperations(List<String> text, double currentSaldo) {
-        return new BankAccount(getOnlyLinesOfAccountOperationsCSV(text), currentSaldo);
+        return new BankAccount(this.getOnlyLinesOfAccountOperationsCSV(text), currentSaldo);
     }
 
-    private static List<String> getOnlyLinesOfAccountOperationsCSV(List<String> text) {
+    private  List<String> getOnlyLinesOfAccountOperationsCSV(List<String> text) {
         List<String> textNoHead = extractHeaderBeforeRealCSV(text);
         return extractLinesAfterAccountCSV(textNoHead);
     }
 
-    private static List<String> extractHeaderBeforeRealCSV(List<String> text){
-        return text.subList(text.indexOf("") + 1, text.size());
+    private List<String> extractHeaderBeforeRealCSV(List<String> text){
+        for(int i = 0; i < text.size(); i++){
+            if (text.get(i).startsWith(TextIdentificators.getInstance().header)) return text.subList(i, text.size());
+        }
+        throw new java.lang.Error("Header not found");
     }
 
-    private static List<String> extractLinesAfterAccountCSV(List<String> text) {
-        return text.subList(0, text.indexOf(""));
+    private  List<String> extractLinesAfterAccountCSV(List<String> text) {
+        return text.subList(0, text.indexOf(TextIdentificators.getInstance().emptyLine));
     }
 
     private String getLastFile() {
@@ -73,13 +77,13 @@ public class CSVLoader {
         File oldestFileFound = null;
         for(File f: currentDirectoryFiles) {
             if (f.isFile() && f.getName().startsWith(FILENAME_START) && f.getName().endsWith(FILENAME_END)) {
-                oldestFileFound = newerFile(oldestFileFound, f);
+                oldestFileFound = this.newerFile(oldestFileFound, f);
             }
         }
         return oldestFileFound.getName();
     }
 
-    private static File newerFile(File previousFile,File currentFile) {
+    private File newerFile(File previousFile,File currentFile) {
         if(previousFile == null) {
             return currentFile;
         }

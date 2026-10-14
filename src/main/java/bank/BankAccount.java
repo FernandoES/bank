@@ -11,23 +11,32 @@ public class BankAccount {
     public List<MontlyReport> montlyReport;
 
     public String CSVHeader;
-    public final String CSVHeaderExpansion = "\"Stand in EUR\";";
     public final String ExpansionName = "upgraded_";
     public final String ReportName = "montlyReport_";
 
     public BankAccount(List<String> textList, double saldo) {
         this.CSVHeader = textList.get(0);
-        this.operations = textList.subList(1, textList.size()).stream().map(line -> BankOperation.createFromString(line)).collect(Collectors.toList());
+
+        this.operations = this.filteroutOpenOperations(textList).stream().map(line -> BankOperation.createFromString(line)).collect(Collectors.toList());
         this.operations = fulfillWithCurrentSaldo(saldo, this.operations);
         this.montlyReport = MontlyReport.getAReportForEachMonth(this.operations);
     }
 
     public void printOperationsToFile(){
-        printToFile(this.operations.stream().map(op -> op.toString()), this.CSVHeader + this.CSVHeaderExpansion, ExpansionName);
+        printToFile(this.operations.stream().map(op -> op.toString()), this.CSVHeader + TextIdentificators.getInstance().headerAddedColumn, ExpansionName);
     }
 
     public void printMontlyReportTofile() {
         printToFile(this.montlyReport.stream().map(r -> r.printSingleMonthreportToString()), MontlyReport.HEADER, ReportName);
+    }
+
+    private List<String> filteroutOpenOperations(List<String> textList) {
+        for(int i = 1; i< textList.size(); i++) {
+        if(!textList.get(i).startsWith(TextIdentificators.getInstance().openOperation)) {
+            return textList.subList(i, textList.size());
+        }
+    }
+        return null;
     }
 
     private static void printToFile(Stream<String> information, String header, String extensionName) {
