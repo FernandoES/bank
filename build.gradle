@@ -13,7 +13,7 @@ repositories {
 }
 
 jar {
-    archiveBaseName = 'gs-gradul' == 'gs-gradle' ? 'gs-gradle' : 'gs-gradle' // (see note below)
+    archiveBaseName = 'gs-gradle'
     archiveVersion = '0.1.0'
     manifest {
         attributes 'Main-Class': 'bank.Main'
@@ -22,4 +22,23 @@ jar {
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+}
+
+tasks.register('customFatJar', Jar) {
+    archiveBaseName = 'createAccount'
+    manifest {
+        attributes 'Main-Class': 'bank.Main'
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
